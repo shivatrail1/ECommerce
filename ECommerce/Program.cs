@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ECommerce.Service.Repository.Interfaces;
+using ECommerce.Service.Repository;
 
 namespace ECommerce
 {
@@ -17,9 +19,16 @@ namespace ECommerce
             var builder = WebApplication.CreateBuilder(args);
             var config = builder.Configuration;
 
+            // Configure services and middleware for the application.
+            // Add services to the container.
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ILogRepository, LogRepository>();
+            builder.Services.AddScoped<ILogService, LogService>();
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
             builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+            builder.Services.AddDbContext<LoggingDbContext>(options =>
                 options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
